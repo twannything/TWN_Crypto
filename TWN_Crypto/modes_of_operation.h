@@ -1,0 +1,2 @@
+unsigned int enc_ecb_lea(unsigned char* ct, unsigned char* pt, unsigned int* rk, unsigned int length, unsigned int rem);
+unsigned int dec_ecb_lea(unsigned char* pt, unsigned char* ct, unsigned int* rk, unsigned int length);
