@@ -1,13 +1,5 @@
-﻿/* �� ��Ʈ / Ű ������ / ����
-128 - 16 / 16 / 12
-192 - 16 / 24 / 14
-256 - 16 / 32 /16
-*/
-#include "aria.h"
+﻿#include "aria.h"
 
-//byte key[32] = { 0x00 ,0x01 ,0x02 ,0x03 ,0x04 ,0x05 ,0x06 ,0x07 ,0x08 ,0x09 ,0x0a ,0x0b ,0x0c ,0x0d ,0x0e ,0x0f ,0x10 ,0x11 ,0x12 ,0x13 ,0x14 ,0x15 ,0x16 ,0x17 ,0x18 ,0x19 ,0x1a ,0x1b ,0x1c ,0x1d ,0x1e ,0x1f };
-//byte p[16] = { 0x00 ,0x01 ,0x02 ,0x03 ,0x04 ,0x05 ,0x06 ,0x07 ,0x08 ,0x09 ,0x0a ,0x0b ,0x0c ,0x0d ,0x0e ,0x0f };
-//byte* w[Nb * (Nr + 1)] = { 0x00 };
 
 byte s_box1[256] = { 0x63 ,0x7c ,0x77 ,0x7b ,0xf2 ,0x6b ,0x6f ,0xc5 ,0x30 ,0x01 ,0x67 ,0x2b ,0xfe ,0xd7 ,0xab ,0x76
  ,0xca ,0x82 ,0xc9 ,0x7d ,0xfa ,0x59 ,0x47 ,0xf0 ,0xad ,0xd4 ,0xa2 ,0xaf ,0x9c ,0xa4 ,0x72 ,0xc0
@@ -244,14 +236,14 @@ void F_e(byte* state, byte* k) {
 	DiffLayer(state);
 }
 
-void Key_expansion(byte* w, byte* key) {
+void Key_expansion(byte* w, byte* key, unsigned int keyLen) {
 	byte W0[16] = { 0x00 };
 	byte W1[16] = { 0x00 };
 	byte W2[16] = { 0x00 };
 	byte W3[16] = { 0x00 };
 	byte tmp[16] = { 0x00 };
 
-	if (Nk == 16) {
+	if (keyLen == 16) {
 		byte KL[16] = { 0x00 ,0x01 ,0x02 ,0x03 ,0x04 ,0x05 ,0x06 ,0x07 ,0x08 ,0x09 ,0x0a ,0x0b ,0x0c ,0x0d ,0x0e, 0x0f };
 		byte KR[16] = { 0x00, };
 		byte ck1[16] = { 0x51, 0x7c, 0xc1, 0xb7, 0x27, 0x22, 0x0a, 0x94, 0xfe, 0x13, 0xab, 0xe8, 0xfa, 0x9a, 0x6e, 0xe0 };
@@ -339,7 +331,7 @@ void Key_expansion(byte* w, byte* key) {
 
 
 	}
-	else if (Nk == 24) {
+	else if (keyLen == 24) {
 		byte KL[16] = { 0x00 ,0x01 ,0x02 ,0x03 ,0x04 ,0x05 ,0x06 ,0x07 ,0x08 ,0x09 ,0x0a ,0x0b ,0x0c ,0x0d ,0x0e, 0x0f };
 		byte KR[16] = { 0x10 ,0x11 ,0x12 ,0x13 ,0x14 ,0x15 ,0x16 ,0x17 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00, 0x00 };
 		byte ck1[16] = { 0x6d, 0xb1, 0x4a, 0xcc, 0x9e, 0x21, 0xc8, 0x20, 0xff, 0x28, 0xb1, 0xd5, 0xef, 0x5d, 0xe2, 0xb0 };
@@ -545,46 +537,134 @@ void Key_expansion(byte* w, byte* key) {
 }
 
 
-void aria_enc(byte* state, byte* out, byte* w, byte* key) {
+void aria_enc(byte* state, byte* out, byte* key, unsigned int keyLen) {
 
-	int i = 0;
-	Key_expansion(w, key);
+	if (keyLen == 16) {
+		byte aria_w[16 * (12 + 1)] = { 0x00 };
+		int i = 0;
+		Key_expansion(aria_w, key,keyLen);
 
-	for (i = 0; i < Nr - 1; i++) {
-		if ((i % 2) == 0)
-			F_o(state, (w + (i * Nb)));
-		else {
-			F_e(state, (w + (i * Nb)));
+		for (i = 0; i < 12 - 1; i++) {
+			if ((i % 2) == 0)
+				F_o(state, (aria_w + (i * 16)));
+			else {
+				F_e(state, (aria_w + (i * 16)));
+			}
 		}
-	}
-	Add_Round_Key(state, (w + ((i)*Nb)));
-	SubstLayer(state, 1);
-	Add_Round_Key(state, (w + ((i + 1) * Nb)));
+		Add_Round_Key(state, (aria_w + ((i)*16)));
+		SubstLayer(state, 1);
+		Add_Round_Key(state, (aria_w + ((i + 1) * 16)));
 
-	memcpy(out, state, 16);
+		memcpy(out, state, 16);
+	}
+	else if (keyLen == 24) {
+		byte aria_w[16 * (14 + 1)] = { 0x00 };
+		int i = 0;
+		Key_expansion(aria_w, key,keyLen);
+
+		for (i = 0; i < 14 - 1; i++) {
+			if ((i % 2) == 0)
+				F_o(state, (aria_w + (i * 16)));
+			else {
+				F_e(state, (aria_w + (i * 16)));
+			}
+		}
+		Add_Round_Key(state, (aria_w + ((i) * 16)));
+		SubstLayer(state, 1);
+		Add_Round_Key(state, (aria_w + ((i + 1) * 16)));
+
+		memcpy(out, state, 16);
+	}
+	else {
+		byte aria_w[16 * (16 + 1)] = { 0x00 };
+		int i = 0;
+		Key_expansion(aria_w, key,keyLen);
+
+		for (i = 0; i < 16 - 1; i++) {
+			if ((i % 2) == 0)
+				F_o(state, (aria_w + (i * 16)));
+			else {
+				F_e(state, (aria_w + (i * 16)));
+			}
+		}
+		Add_Round_Key(state, (aria_w + ((i) * 16)));
+		SubstLayer(state, 1);
+		Add_Round_Key(state, (aria_w + ((i + 1) * 16)));
+
+		memcpy(out, state, 16);
+	}
 }
 
-void aria_dec(byte* state, byte* out, byte* w, byte* key) {
+void aria_dec(byte* state, byte* out, byte* key, unsigned int keyLen) {
+	if (keyLen == 16) {
+		byte aria_w[16 * (12 + 1)] = { 0x00 };
+		int i = 0;
+		Key_expansion(aria_w, key,keyLen);
+		F_o(state, (aria_w + (16 * 12) - (i * 16)));
+		for (i = 1; i < 12 - 1; i++) {
+			if ((i % 2) == 0) {
+				DiffLayer(aria_w + (16 * 12) - (i * 16));
+				F_o(state, (aria_w + (16 * 12) - (i * 16)));
+			}
+			else {
+				DiffLayer(aria_w + (16 * 12) - (i * 16));
+				F_e(state, (aria_w + (16 * 12) - (i * 16)));
+			}
 
-	int i = 0;
-	Key_expansion(w, key);
-	F_o(state, (w + (Nb * Nr) - (i * Nb)));
-	for (i = 1; i < Nr - 1; i++) {
-		if ((i % 2) == 0) {
-			DiffLayer(w + (Nb * Nr) - (i * Nb));
-			F_o(state, (w + (Nb * Nr) - (i * Nb)));
 		}
-		else {
-			DiffLayer(w + (Nb * Nr) - (i * Nb));
-			F_e(state, (w + (Nb * Nr) - (i * Nb)));
-		}
+		DiffLayer(aria_w + (16 * 12) - (i * 16));
+		Add_Round_Key(state, (aria_w + (16 * 12) - (i * 16)));
+		SubstLayer(state, 1);
+		Add_Round_Key(state, (aria_w + (16 * 12) - ((i + 1) * 16)));
 
+		memcpy(out, state, 16);
 	}
-	DiffLayer(w + (Nb * Nr) - (i * Nb));
-	Add_Round_Key(state, (w + (Nb * Nr) - (i * Nb)));
-	SubstLayer(state, 1);
-	Add_Round_Key(state, (w + (Nb * Nr) - ((i + 1) * Nb)));
+	else if (keyLen == 24) {
+		byte aria_w[16 * (14 + 1)] = { 0x00 };
+		int i = 0;
+		Key_expansion(aria_w, key, keyLen);
+		F_o(state, (aria_w + (16 * 14) - (i * 16)));
+		for (i = 1; i < 14 - 1; i++) {
+			if ((i % 2) == 0) {
+				DiffLayer(aria_w + (16 * 14) - (i * 16));
+				F_o(state, (aria_w + (16 * 14) - (i * 16)));
+			}
+			else {
+				DiffLayer(aria_w + (16 * 14) - (i * 16));
+				F_e(state, (aria_w + (16 * 14) - (i * 16)));
+			}
 
-	memcpy(out, state, 16);
+		}
+		DiffLayer(aria_w + (16 * 14) - (i * 16));
+		Add_Round_Key(state, (aria_w + (16 * 14) - (i * 16)));
+		SubstLayer(state, 1);
+		Add_Round_Key(state, (aria_w + (16 * 14) - ((i + 1) * 16)));
+
+		memcpy(out, state, 16);
+	}
+	else {
+		byte aria_w[16 * (16 + 1)] = { 0x00 };
+		int i = 0;
+		Key_expansion(aria_w, key, keyLen);
+		F_o(state, (aria_w + (16 * 16) - (i * 16)));
+		for (i = 1; i < 16 - 1; i++) {
+			if ((i % 2) == 0) {
+				DiffLayer(aria_w + (16 * 16) - (i * 16));
+				F_o(state, (aria_w + (16 * 16) - (i * 16)));
+			}
+			else {
+				DiffLayer(aria_w + (16 * 16) - (i * 16));
+				F_e(state, (aria_w + (16 * 16) - (i * 16)));
+			}
+
+		}
+		DiffLayer(aria_w + (16 * 16) - (i * 16));
+		Add_Round_Key(state, (aria_w + (16 * 16) - (i * 16)));
+		SubstLayer(state, 1);
+		Add_Round_Key(state, (aria_w + (16 * 16) - ((i + 1) * 16)));
+
+		memcpy(out, state, 16);
+	}
+
 }
 

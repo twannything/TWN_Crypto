@@ -1,26 +1,6 @@
-﻿/* �� ��Ʈ / Ű ������ / ����
-128 - 16 / 16 / 12
-192 - 16 / 24 / 14
-256 - 16 / 32 /16
-*/
-
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <string.h>
 
-
-#define Nk 32
-#define Nb 16
-
-#if Nk == 16
-#define Nr 12
-
-#elif Nk == 24
-#define Nr 14
-
-#else
-#define Nr 16
-
-#endif
 
 typedef unsigned char byte;
 
@@ -35,6 +15,6 @@ void SubstLayer(byte* state, int eo);
 void DiffLayer(byte* state);
 void F_o(byte* state, byte* k);
 void F_e(byte* state, byte* k);
-void Key_expansion(byte* w, byte* key);
-void aria_enc(byte* state, byte* out, byte* w, byte* key);
-void aria_dec(byte* state, byte* out, byte* w);
+void Key_expansion(byte* w, byte* key, unsigned int keyLen);
+void aria_enc(byte* state, byte* out, byte* key, unsigned int keyLen);
+void aria_dec(byte* state, byte* out, byte* key, unsigned int keyLen);
