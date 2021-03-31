@@ -89,11 +89,25 @@ void main() {
 	unsigned char lea_p_256[16] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f };
 	unsigned char lea_c[16] = { 0x00, };
 
+	printf("\n************************************\n");
+	unsigned int lea_rk[192] = { 0x00, };
+	unsigned int length = 0;
+	length = sizeof(lea_p_128) / 16;
+	unsigned int rem = sizeof(lea_p_128) % 16;
+	enc_key_schedule(lea_k, lea_rk, 16);
+	//enc_ecb_lea(lea_c, lea_p_128, lea_rk, length, rem);
+	//printf("\n");
+	//printf("C : ");
+	//for (int i = 0; i < 32; i++) printf("%02x ", lea_c[i]);
+	//printf("\n");
+
+	printf("\n************************************\n");
+
 	printf("\n");
 
 	printf("\n****************LEA-128 TEST****************\n");
 
-	enc_lea(lea_c, lea_p_128, lea_k, 128);
+	enc_lea(lea_c, lea_p_128, lea_k, 16);
 
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_128[i]);
@@ -103,14 +117,15 @@ void main() {
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_c[i]);
 	printf("\n");
 
-	dec_lea(lea_p_128, lea_c, lea_k, 128);
+	dec_lea(lea_p_128, lea_c, lea_k, 16);
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_128[i]);
 
 	printf("\n");
 
 	printf("****************LEA-192 TEST****************\n");
-	enc_lea(lea_c, lea_p_192, lea_k, 192);
+	enc_key_schedule(lea_k, lea_rk, 24);
+	enc_lea(lea_c, lea_p_192, lea_k, 24);
 
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_192[i]);
@@ -120,13 +135,14 @@ void main() {
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_c[i]);
 	printf("\n");
 
-	dec_lea(lea_p_192, lea_c, lea_k, 192);
+	dec_lea(lea_p_192, lea_c, lea_k, 24);
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_192[i]);
 	printf("\n");
 
 	printf("****************LEA-256 TEST****************\n");
-	enc_lea(lea_c, lea_p_256, lea_k, 256);
+	enc_key_schedule(lea_k, lea_rk, 32);
+	enc_lea(lea_c, lea_p_256, lea_k, 32);
 
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_256[i]);
@@ -136,10 +152,15 @@ void main() {
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_c[i]);
 	printf("\n");
 
-	dec_lea(lea_p_256, lea_c, lea_k, 256);
+	dec_lea(lea_p_256, lea_c, lea_k, 32);
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_256[i]);
 	printf("\n");
+
+	printf("Mode of operation : ");
+	length = sizeof(lea_p_256) / 16;
+	rem = sizeof(lea_p_256) % 16;
+	mo_block_cipher(lea_c, lea_p_256, lea_k, 32, length, rem, LEA, ECB);
 
 	printf("\n*******************SEED-128****************************\n");
 
@@ -177,5 +198,7 @@ void main() {
 		printf("%08x ", dec[i]);
 	}
 	printf("\n");
+
+
 
 }

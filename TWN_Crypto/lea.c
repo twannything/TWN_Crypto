@@ -26,7 +26,7 @@ void round_dec(unsigned int* y, unsigned int* x, unsigned int* rk, unsigned int 
 
 
 void enc_key_schedule(unsigned char* k, unsigned int* rk, unsigned int len) {
-	if (len == 128) {
+	if (len == 16) {
 		unsigned int T[4] = { 0x00, };
 
 		memcpy(T, k, 16);
@@ -43,7 +43,7 @@ void enc_key_schedule(unsigned char* k, unsigned int* rk, unsigned int len) {
 			*(rk + (i * 6) + 5) = T[1];
 		}
 	}
-	else if (len == 192) {
+	else if (len == 24) {
 		unsigned int T[6] = { 0x00, };
 		memcpy(T, k, 24);
 		for (unsigned int i = 0; i < 28; i++) {
@@ -61,7 +61,7 @@ void enc_key_schedule(unsigned char* k, unsigned int* rk, unsigned int len) {
 			*(rk + (i * 6) + 5) = T[5];
 		}
 	}
-	else if (len == 256) {
+	else if (len == 32) {
 		unsigned int T[8] = { 0x00, };
 		memcpy(T, k, 32);
 		for (int i = 0; i < 32; i++) {
@@ -142,21 +142,21 @@ void dec_key_schedule(unsigned char* k, unsigned int* rk, unsigned int len) {
 
 void enc_lea(unsigned char* c, unsigned char* p, unsigned char* key, unsigned int keyLen) {
 
-	unsigned int lea_rk[192] = { 0x00, };
+	//unsigned int lea_rk[192] = { 0x00, };
 	unsigned int x[4] = { NULL };
 	unsigned int tmp[4] = { NULL };
 	int nr = 0;
-	if (keyLen == 128) {
+	if (keyLen == 16) {
 		nr = 24;
-		enc_key_schedule(key, lea_rk, keyLen);
+		//enc_key_schedule(key, lea_rk, keyLen);
 	}
-	else if (keyLen == 192) {
+	else if (keyLen == 24) {
 		nr = 28;
-		enc_key_schedule(key, lea_rk, keyLen);
+		//enc_key_schedule(key, lea_rk, keyLen);
 	}
-	else if (keyLen == 256) {
+	else if (keyLen == 32) {
 		nr = 32;
-		enc_key_schedule(key, lea_rk, keyLen);
+		//enc_key_schedule(key, lea_rk, keyLen);
 	}
 	else {
 		printf("wrong key length !!!\n");
@@ -165,10 +165,11 @@ void enc_lea(unsigned char* c, unsigned char* p, unsigned char* key, unsigned in
 
 	memcpy(x, p, 16);
 	for (int i = 0; i < nr; i++) {
-		round_enc(tmp, x, lea_rk + (6 * i), i);
+		round_enc(tmp, x, key + (6 * i), i);
 		memcpy(x, tmp, 16);
 	}
 	memcpy(c, x, 16);
+
 }
 
 void dec_lea(unsigned char* p, unsigned char* c, unsigned int* key, unsigned int keyLen) {
