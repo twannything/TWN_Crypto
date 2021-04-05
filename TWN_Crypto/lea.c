@@ -140,7 +140,7 @@ void dec_key_schedule(unsigned char* k, unsigned int* rk, unsigned int len) {
 	else printf("wrong key length!!!\n");
 }
 
-void enc_lea(unsigned char* c, unsigned char* p, unsigned char* key, unsigned int keyLen) {
+void enc_lea(unsigned char* c, unsigned char* p, unsigned int* key, unsigned int keyLen) {
 
 	//unsigned int lea_rk[192] = { 0x00, };
 	unsigned int x[4] = { NULL };
@@ -178,16 +178,16 @@ void dec_lea(unsigned char* p, unsigned char* c, unsigned int* key, unsigned int
 	int nr = 0;
 	unsigned int lea_rk[192] = { 0x00, };
 
-	if (keyLen == 128) {
+	if (keyLen == 16) {
 		nr = 24;
-		enc_key_schedule(key, lea_rk, keyLen);
+		//enc_key_schedule(key, lea_rk, keyLen);
 	}
-	else if (keyLen == 192) {
+	else if (keyLen == 24) {
 		nr = 28;
-		enc_key_schedule(key, lea_rk, keyLen);
+		//enc_key_schedule(key, lea_rk, keyLen);
 	}
-	else if (keyLen == 256) {
-		enc_key_schedule(key, lea_rk, keyLen);
+	else if (keyLen == 32) {
+		//enc_key_schedule(key, lea_rk, keyLen);
 		nr = 32;
 	}
 	else {
@@ -197,7 +197,7 @@ void dec_lea(unsigned char* p, unsigned char* c, unsigned int* key, unsigned int
 
 	memcpy(x, c, 16);
 	for (int i = 0; i < nr; i++) {
-		round_dec(tmp, x, lea_rk + (6 * (nr - 1)) - (6 * i), i);
+		round_dec(tmp, x, key + (6 * (nr - 1)) - (6 * i), i);
 		memcpy(x, tmp, 16);
 	}
 	memcpy(p, x, 16);

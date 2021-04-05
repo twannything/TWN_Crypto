@@ -14,6 +14,7 @@ void main() {
 		0xcc ,0xdd ,0xee ,0xff };
 	byte aria_e[16] = { 0x00, };
 	byte aria_m[16] = { 0x00, };
+	byte aria_w[16 * (16 +1)] = { 0x00 };
 
 	printf("\n*******************ARIA-128****************************\n");
 
@@ -22,8 +23,8 @@ void main() {
 		printf("%02x ", aria_p[i]);
 
 	printf("\n");
-
-	aria_enc(aria_p, aria_e, aria_key,16);
+	Key_expansion(aria_w, aria_key, 16);
+	aria_enc(aria_p, aria_e, aria_w,16);
 
 	printf(" C : ");
 	for (int i = 0; i < 16; i++)
@@ -31,7 +32,7 @@ void main() {
 
 	printf("\n");
 
-	aria_dec(aria_e, aria_m,aria_key, 16);
+	aria_dec(aria_e, aria_m,aria_w, 16);
 
 	printf(" P : ");
 	for (int i = 0; i < 16; i++)
@@ -44,8 +45,8 @@ void main() {
 		printf("%02x ", aria_p[i]);
 
 	printf("\n");
-
-	aria_enc(aria_p, aria_e, aria_key, 24);
+	Key_expansion(aria_w, aria_key, 24);
+	aria_enc(aria_p, aria_e, aria_w, 24);
 
 	printf(" C : ");
 	for (int i = 0; i < 16; i++)
@@ -53,7 +54,7 @@ void main() {
 
 	printf("\n");
 
-	aria_dec(aria_e, aria_m, aria_key, 24);
+	aria_dec(aria_e, aria_m, aria_w, 24);
 
 	printf(" P : ");
 	for (int i = 0; i < 16; i++)
@@ -65,7 +66,8 @@ void main() {
 	for (int i = 0; i < 16; i++)
 		printf("%02x ", aria_p[i]);
 
-	aria_enc(aria_p, aria_e, aria_key, 32);
+	Key_expansion(aria_w, aria_key, 32);
+	aria_enc(aria_p, aria_e, aria_w, 32);
 
 	printf("\n");
 
@@ -75,7 +77,7 @@ void main() {
 
 	printf("\n");
 
-	aria_dec(aria_e, aria_m, aria_key, 32);
+	aria_dec(aria_e, aria_m, aria_w, 32);
 
 	printf(" P : ");
 	for (int i = 0; i < 16; i++)
@@ -95,19 +97,10 @@ void main() {
 	length = sizeof(lea_p_128) / 16;
 	unsigned int rem = sizeof(lea_p_128) % 16;
 	enc_key_schedule(lea_k, lea_rk, 16);
-	//enc_ecb_lea(lea_c, lea_p_128, lea_rk, length, rem);
-	//printf("\n");
-	//printf("C : ");
-	//for (int i = 0; i < 32; i++) printf("%02x ", lea_c[i]);
-	//printf("\n");
-
-	printf("\n************************************\n");
-
-	printf("\n");
 
 	printf("\n****************LEA-128 TEST****************\n");
 
-	enc_lea(lea_c, lea_p_128, lea_k, 16);
+	enc_lea(lea_c, lea_p_128, lea_rk, 16);
 
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_128[i]);
@@ -117,7 +110,7 @@ void main() {
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_c[i]);
 	printf("\n");
 
-	dec_lea(lea_p_128, lea_c, lea_k, 16);
+	dec_lea(lea_p_128, lea_c, lea_rk, 16);
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_128[i]);
 
@@ -125,7 +118,7 @@ void main() {
 
 	printf("****************LEA-192 TEST****************\n");
 	enc_key_schedule(lea_k, lea_rk, 24);
-	enc_lea(lea_c, lea_p_192, lea_k, 24);
+	enc_lea(lea_c, lea_p_192, lea_rk, 24);
 
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_192[i]);
@@ -135,14 +128,14 @@ void main() {
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_c[i]);
 	printf("\n");
 
-	dec_lea(lea_p_192, lea_c, lea_k, 24);
+	dec_lea(lea_p_192, lea_c, lea_rk, 24);
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_192[i]);
 	printf("\n");
 
 	printf("****************LEA-256 TEST****************\n");
 	enc_key_schedule(lea_k, lea_rk, 32);
-	enc_lea(lea_c, lea_p_256, lea_k, 32);
+	enc_lea(lea_c, lea_p_256, lea_rk, 32);
 
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_256[i]);
@@ -152,15 +145,15 @@ void main() {
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_c[i]);
 	printf("\n");
 
-	dec_lea(lea_p_256, lea_c, lea_k, 32);
+	dec_lea(lea_p_256, lea_c, lea_rk, 32);
 	printf("P : ");
 	for (int i = 0; i < 16; i++) printf("%02x ", lea_p_256[i]);
 	printf("\n");
 
-	printf("Mode of operation : ");
+	/*printf("Mode of operation : ");
 	length = sizeof(lea_p_256) / 16;
 	rem = sizeof(lea_p_256) % 16;
-	mo_block_cipher(lea_c, lea_p_256, lea_k, 32, length, rem, LEA, ECB);
+	mo_block_cipher(lea_c, lea_p_256, lea_k, 32, length, rem, LEA, ECB);*/
 
 	printf("\n*******************SEED-128****************************\n");
 
