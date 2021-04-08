@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="aria.c" />
+    <ClCompile Include="hash.c" />
     <ClCompile Include="lea.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="modes_of_operation.c" />
@@ -147,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aria.h" />
+    <ClInclude Include="hash.h" />
     <ClInclude Include="lea.h" />
     <ClInclude Include="modes_of_operation.h" />
     <ClInclude Include="seed.h" />
